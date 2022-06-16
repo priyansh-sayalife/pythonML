@@ -6,19 +6,33 @@
 import psycopg2
 import pandas as pd
 import datetime
+import config
 
 columns = ['meterNumber', 'meterLocalTime', 'flow', "Tod", "Duration", "Volume"]
 
+credential = []
+
+
+def read_database_file():
+    with open('configtext.text') as f:
+        lines = f.readlines()
+        print(lines)
+
+    for line in lines:
+        credential.append(str(line).replace('\n', ''))
+
 
 def make_connection():
+    read_database_file()
+    global conn
     meter_numbers = []
     meter_local_time = []
     ifrs = []
     try:
         # establishing the connection
         conn = psycopg2.connect(
-            database="SAYA", user='postgres', password='test#123', host='52.40.141.127', port='5432'
-        )
+            database=credential[0], user=credential[1], password=credential[2],
+            host=credential[3], port=credential[4])
         # Creating a cursor object using the cursor() method
         cursor = conn.cursor()
 
@@ -43,16 +57,12 @@ def make_connection():
             conn.close()
             print("PostgreSQL connection is closed")
 
-    print(meter_numbers)
-    print(meter_local_time)
-    print(ifrs)
-
     read_file(meter_numbers, meter_local_time, ifrs)
 
 
 def read_file(meter_numbers, meter_local_time, ifrs):
     df = pd.read_excel(r'/Users/priyanshrajput/Downloads/MeterDetails.xlsx', usecols=['meterNumber', 'meterLocalTime',
-                                                                                   'flow'])
+                                                                                      'flow'])
     to_d = []
     volumes = []
     durations = []
@@ -92,17 +102,28 @@ def read_file(meter_numbers, meter_local_time, ifrs):
     volumes.append("")
     durations.append("")
 
-    print("durations->", len(durations))
-    print("to_d->", len(to_d))
-    print("volumes->", len(volumes))
+    data = []
+    for idx, item in enumerate(meter_numbers):
+        print(idx, item)
+        row = []
+        row.append(meter_numbers[idx])
+        row.append(meter_local_time[idx])
+        row.append(ifrs[idx])
+        row.append(to_d[idx])
+        row.append(durations[idx])
+        row.append(volumes[idx])
+        data.append(row)
+
+    data = pd.DataFrame(data, columns=columns)
+    data.to_csv('/Users/priyanshrajput/Downloads/MeterDetails_data.csv', index=False)
 
     # Create DataFrame from multiple lists
-    data = pd.DataFrame(list(zip(meter_numbers, meter_local_time, ifrs, to_d, durations, volumes)), columns=columns)
+    # data = pd.DataFrame(list(zip(meter_numbers, meter_local_time, ifrs, to_d, durations, volumes)), columns=columns)
 
     # Write DataFrame to Excel file
-    writer = pd.ExcelWriter(r'/Users/priyanshrajput/Downloads/MeterDetails.xlsx', engine='xlsxwriter')
-    data.to_excel(writer, sheet_name='Sheet1')
-    writer.save()
+    # writer = pd.ExcelWriter(r'/Users/priyanshrajput/Downloads/MeterDetails.xlsx', engine='xlsxwriter')
+    # data.to_excel(writer, sheet_name='Sheet1')
+    # writer.save()
 
     print(data)
 
@@ -120,7 +141,6 @@ if __name__ == '__main__':
     make_connection()
     # read_file()
     # date_format("2021-05-28 01:30:00")
-
 
 # Server=52.40.141.127;
 # Port=5432;
