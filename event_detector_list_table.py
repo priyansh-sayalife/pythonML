@@ -22,7 +22,7 @@ def make_connection():
         # Creating a cursor object using the cursor() method
         cursor = conn.cursor()
 
-        query = "SELECT * FROM anomaly_detector"
+        query = "SELECT * FROM event_detector"
         cursor.execute(query)
         for record in cursor.fetchall():
             print(record)

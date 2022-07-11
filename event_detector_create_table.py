@@ -22,11 +22,10 @@ def make_connection():
         # Creating a cursor object using the cursor() method
         cursor = conn.cursor()
 
-        query = """CREATE TABLE anomaly_detector (uniqid serial PRIMARY KEY, id BIGINT, anomaly INTEGER,
-        anomaly_score NUMERIC(20,14), anomaly_threshold NUMERIC(20,14), meterNUmber VARCHAR(15),
-        meterLocalTime TIMESTAMP, flow NUMERIC(20,14), fr NUMERIC(20,14));"""
-        #
-        # query = """DROP Table anomaly_detector"""
+        query = """CREATE TABLE event_detector (uniqid serial PRIMARY KEY, eID BIGINT, timestampDates text,
+        meterNumber VARCHAR(15), Duration INTEGER, Volume NUMERIC(20,14), TypeName VARCHAR(25));"""
+
+        # query = """DROP Table event_detector"""
         cursor.execute(query)
         print(cursor.rowcount)
         cursor.close()

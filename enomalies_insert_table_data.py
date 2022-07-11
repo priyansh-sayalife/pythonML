@@ -62,9 +62,10 @@ async def read_enomalies_file():
 
     limit = int(len(records)/100)
     for index in range(0, limit):
-        print((index*100), ":", ((index+1)*100))
-        result = pool.submit(asyncio.run, make_connection(records[(index*100):((index+1)*100)])).result()
-        print('exiting synchronous_property', result)
+        if (index*100) >= 127200:
+            print((index*100), ":", ((index+1)*100))
+            result = pool.submit(asyncio.run, make_connection(records[(index*100):((index+1)*100)])).result()
+            print('exiting synchronous_property', result)
 
 
 # if __name__ == '__main__':
